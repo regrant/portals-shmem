@@ -30,12 +30,15 @@
 
 #define SHMEM_INTERNAL_INCLUDE
 #include "shmem.h"
+#include "shmemx.h"
 #include "shmem_internal.h"
 #include "shmem_comm.h"
 #include "shmem_collectives.h"
 
 #ifdef ENABLE_PROFILING
 #include "pshmem.h"
+
+#include <errno.h>
 
 #pragma weak shmem_malloc = pshmem_malloc
 #define shmem_malloc pshmem_malloc
@@ -296,6 +299,36 @@ shmem_malloc(size_t size)
     return ret;
 }
 
+
+void SHMEM_FUNCTION_ATTRIBUTES *
+shmemx_malloc_varsize(size_t my_size, size_t global_max_size)
+{
+    void *ret = NULL;
+
+    SHMEM_ERR_CHECK_INITIALIZED();
+
+    if (global_max_size == 0) return ret;
+
+    shmem_internal_assertp(my_size <= global_max_size);
+
+    SHMEM_MUTEX_LOCK(shmem_internal_mutex_alloc);
+    ret = dlmemalign((size_t) sysconf(_SC_PAGESIZE), my_size);
+    void *ret_hole = dlmemalign((size_t) sysconf(_SC_PAGESIZE), (global_max_size - my_size));
+    //dlfree((void *)((uintptr_t) ret + my_size));
+    //dlfree(ret_hole);
+    //fprintf(stderr, "ret_hole %p\n", ret_hole);
+    int ret1 = munmap(ret_hole, (size_t) (global_max_size - my_size));
+    //int ret1 = madvise((void *)((uintptr_t) ret + my_size), (size_t) (global_max_size - my_size), MADV_REMOVE);
+    //fprintf(stderr, "[PE %d] first = %p, size = %ld\n", shmem_internal_my_pe, (void *)((uintptr_t) ret + my_size), (global_max_size - my_size));
+    fprintf(stderr, "[PE %d] ret from munmap = %d, errno %d (%s)\n", shmem_internal_my_pe, ret1, errno, strerror(errno));
+    SHMEM_MUTEX_UNLOCK(shmem_internal_mutex_alloc);
+
+    shmem_internal_barrier_all();
+
+    return ret;
+}
+
+
 void SHMEM_FUNCTION_ATTRIBUTES *
 shmem_calloc(size_t count, size_t size)
 {
@@ -313,6 +346,29 @@ shmem_calloc(size_t count, size_t size)
 
     return ret;
 }
+
+
+void SHMEM_FUNCTION_ATTRIBUTES *
+shmemx_calloc_varsize(size_t my_count, size_t size, size_t global_max_count)
+{
+    void *ret = NULL;
+
+    SHMEM_ERR_CHECK_INITIALIZED();
+
+    if (size == 0 || global_max_count == 0) return ret;
+
+    shmem_internal_assertp(my_count <= global_max_count);
+
+    SHMEM_MUTEX_LOCK(shmem_internal_mutex_alloc);
+    ret = dlcalloc(my_count, size);
+    shmem_internal_get_next((intptr_t) ((global_max_count - my_count) * size));
+    SHMEM_MUTEX_UNLOCK(shmem_internal_mutex_alloc);
+
+    shmem_internal_barrier_all();
+
+    return ret;
+}
+
 
 void SHMEM_FUNCTION_ATTRIBUTES
 shmem_free(void *ptr)

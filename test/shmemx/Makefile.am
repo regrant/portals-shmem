@@ -20,8 +20,9 @@ endif
 
 if SHMEMX_TESTS
 check_PROGRAMS += \
-    perf_counter \
-    shmem_malloc_with_hints
+	shmemx_malloc_varsize \
+	perf_counter \
+	shmem_malloc_with_hints
 
 if HAVE_PTHREADS
 check_PROGRAMS += \

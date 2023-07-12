@@ -34,3 +34,6 @@ SHMEM_FUNCTION_ATTRIBUTES void SHPRE()shmemx_pcntr_get_completed_write(shmem_ctx
 SHMEM_FUNCTION_ATTRIBUTES void SHPRE()shmemx_pcntr_get_completed_read(shmem_ctx_t ctx, uint64_t *cntr_value);
 SHMEM_FUNCTION_ATTRIBUTES void SHPRE()shmemx_pcntr_get_completed_target(uint64_t *cntr_value);
 SHMEM_FUNCTION_ATTRIBUTES void SHPRE()shmemx_pcntr_get_all(shmem_ctx_t ctx, shmemx_pcntr_t *pcntr);
+
+SHMEM_FUNCTION_ATTRIBUTES void* SHPRE()shmemx_malloc_varsize(size_t my_size, size_t global_max_size);
+SHMEM_FUNCTION_ATTRIBUTES void* SHPRE()shmemx_calloc_varsize(size_t my_count, size_t size, size_t global_max_count);
