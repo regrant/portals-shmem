@@ -34,3 +34,10 @@ SHMEM_FUNCTION_ATTRIBUTES void SHPRE()shmemx_pcntr_get_completed_write(shmem_ctx
 SHMEM_FUNCTION_ATTRIBUTES void SHPRE()shmemx_pcntr_get_completed_read(shmem_ctx_t ctx, uint64_t *cntr_value);
 SHMEM_FUNCTION_ATTRIBUTES void SHPRE()shmemx_pcntr_get_completed_target(uint64_t *cntr_value);
 SHMEM_FUNCTION_ATTRIBUTES void SHPRE()shmemx_pcntr_get_all(shmem_ctx_t ctx, shmemx_pcntr_t *pcntr);
+
+/* Asymmetric single PE allocation routines */
+SHMEM_FUNCTION_ATTRIBUTES void *SHPRE()shmemx_malloc_onepe(size_t size);
+SHMEM_FUNCTION_ATTRIBUTES void *SHPRE()shmemx_calloc_onepe(size_t count, size_t size);
+SHMEM_FUNCTION_ATTRIBUTES ptrdiff_t SHPRE()shmemx_ptrdiff_of_ptr(void *ptr);
+SHMEM_FUNCTION_ATTRIBUTES void *SHPRE()shmemx_ptr_of_ptrdiff(ptrdiff_t ptrdiff);
+SHMEM_FUNCTION_ATTRIBUTES void SHPRE()shmemx_free_onepe(void *ptr);

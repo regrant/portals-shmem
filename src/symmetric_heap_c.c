@@ -34,6 +34,8 @@
 #include "shmem_comm.h"
 #include "shmem_collectives.h"
 
+#include "shmemx.h"
+
 #ifdef ENABLE_PROFILING
 #include "pshmem.h"
 
@@ -70,6 +72,7 @@
 #endif /* ENABLE_PROFILING */
 
 static char *shmem_internal_heap_curr = NULL;
+static char *shmem_internal_onepe_curr = NULL;
 
 void* dlmalloc(size_t);
 void* dlcalloc(size_t, size_t);
@@ -243,6 +246,8 @@ shmem_internal_symmetric_init(void)
             shmem_internal_heap_curr =
             malloc(shmem_internal_heap_length);
     }
+
+    shmem_internal_onepe_curr = shmem_internal_heap_curr + shmem_internal_heap_length;
 
     return (NULL == shmem_internal_heap_base) ? -1 : 0;
 }
@@ -431,3 +436,75 @@ shmem_malloc_with_hints(size_t size, long hints)
 
     return ret;
 }
+
+
+void SHMEM_FUNCTION_ATTRIBUTES *
+shmemx_malloc_onepe(size_t size)
+{
+    void *ret = NULL;
+
+    SHMEM_ERR_CHECK_INITIALIZED();
+
+    if (size == 0) return ret;
+
+    SHMEM_MUTEX_LOCK(shmem_internal_mutex_alloc);
+    shmem_internal_onepe_curr -= size;
+    ret = (void *) shmem_internal_onepe_curr;
+    SHMEM_MUTEX_UNLOCK(shmem_internal_mutex_alloc);
+
+    if (shmem_internal_onepe_curr <= shmem_internal_heap_curr) {
+        RAISE_WARN_MSG("No space available for OnePE allocation as it is out of symmetric space\n");
+        shmem_internal_onepe_curr += size;
+        ret = NULL;
+    }
+
+    return ret;
+}
+
+
+void SHMEM_FUNCTION_ATTRIBUTES *
+shmemx_calloc_onepe(size_t count, size_t size)
+{
+    void *ret = NULL;
+
+    SHMEM_ERR_CHECK_INITIALIZED();
+
+    if (size == 0 || count == 0) return ret;
+
+    SHMEM_MUTEX_LOCK(shmem_internal_mutex_alloc);
+    shmem_internal_onepe_curr -= count * size;
+    ret = (void *) shmem_internal_onepe_curr;
+    SHMEM_MUTEX_UNLOCK(shmem_internal_mutex_alloc);
+
+    if (shmem_internal_onepe_curr <= shmem_internal_heap_curr) {
+        RAISE_WARN_MSG("No space available for OnePE allocation as it is out of symmetric space\n");
+        shmem_internal_onepe_curr += count * size;
+        ret = NULL;
+    }
+
+    return ret;
+}
+
+
+ptrdiff_t SHMEM_FUNCTION_ATTRIBUTES
+shmemx_ptrdiff_of_ptr(void *ptr)
+{
+    return (char *) ptr - (char *) shmem_internal_heap_base;
+}
+
+
+void SHMEM_FUNCTION_ATTRIBUTES *
+shmemx_ptr_of_ptrdiff(ptrdiff_t ptrdiff)
+{
+    return (void *) ((char *) shmem_internal_heap_base + ptrdiff);
+}
+
+
+void SHMEM_FUNCTION_ATTRIBUTES
+shmemx_free_onepe(void *ptr)
+{
+    SHMEM_ERR_CHECK_INITIALIZED();
+    if (ptr != NULL) {
+      SHMEM_ERR_CHECK_SYMMETRIC_HEAP(ptr);
+    }
+} 
