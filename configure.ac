@@ -40,6 +40,8 @@ AC_CANONICAL_HOST
 
 OPAL_CONFIGURE_SETUP
 
+OPAL_BASIC_SETUP
+
 OPAL_CHECK_ATTRIBUTES
 AS_IF([test "$opal_cv___attribute__deprecated" = 1],
       [SHMEM_AC_HAVE_ATTRIBUTE_DEPRECATED=1],
@@ -49,45 +51,45 @@ AC_SUBST(SHMEM_AC_HAVE_ATTRIBUTE_DEPRECATED)
 OPAL_CHECK_PMIX
 
 AC_ARG_ENABLE([picky],
-    [AC_HELP_STRING([--enable-picky],
+    [AS_HELP_STRING([--enable-picky],
                     [Enable developer-level compiler pickyness when building (default: disabled)])])
 
 AC_ARG_ENABLE([debug],
-    [AC_HELP_STRING([--enable-debug],
+    [AS_HELP_STRING([--enable-debug],
                     [Include debugging symbols in the build (default: disabled)])])
 
 AC_ARG_ENABLE([error-checking],
-    [AC_HELP_STRING([--enable-error-checking],
+    [AS_HELP_STRING([--enable-error-checking],
                     [Enable error checking for SHMEM calls (default:disabled)])])
 AS_IF([test "$enable_error_checking" = "yes"], [AC_DEFINE([ENABLE_ERROR_CHECKING], [1], [Enable argument checking])])
 AM_CONDITIONAL([ENABLE_ERROR_CHECKING], [test "$enable_error_checking" = "yes"])
 
 AC_ARG_ENABLE([deprecated-tests],
-    [AC_HELP_STRING([--enable-deprecated-tests],
+    [AS_HELP_STRING([--enable-deprecated-tests],
                     [Enable deprecated SHMEM API calls in tests (default:disabled)])])
 AM_CONDITIONAL([ENABLE_DEPRECATED_TESTS], [test "$enable_deprecated_tests" = "yes"])
 
 AC_ARG_ENABLE([hard-polling],
-    [AC_HELP_STRING([--enable-hard-polling],
+    [AS_HELP_STRING([--enable-hard-polling],
                     [Enable hard polling of wait calls (default:automatic)])])
 AS_IF([test "$enable_hard_polling" = "yes"], [AC_DEFINE([ENABLE_HARD_POLLING], [1], [Enable hard polling])])
 
 AC_ARG_ENABLE([completion-polling],
-    [AC_HELP_STRING([--enable-completion-polling],
+    [AS_HELP_STRING([--enable-completion-polling],
                     [Enable polling in quiet, fence, and local completion operations (default:disabled)])])
 
 AC_ARG_ENABLE([hwloc-enforce-single-socket],
-    [AC_HELP_STRING([--enable-hwloc-enforce-single-socket],
+    [AS_HELP_STRING([--enable-hwloc-enforce-single-socket],
                     [Repin process to ensure it has affinity to cores within a single socket (default:disabled)])])
 AS_IF([test "$enable_hwloc_enforce_single_socket" = "yes"], [AC_DEFINE([HWLOC_ENFORCE_SINGLE_SOCKET], [1], [Repin process to ensure it has affinity to cores within a single socket])])
 
 AC_ARG_ENABLE([hwloc-enforce-single-numa-node],
-    [AC_HELP_STRING([--enable-hwloc-enforce-single-numa-node],
+    [AS_HELP_STRING([--enable-hwloc-enforce-single-numa-node],
                     [Repin process to ensure it has affinity to cores within a single NUMA node (default:disabled)])])
 AS_IF([test "$enable_hwloc_enforce_single_numa_node" = "yes"], [AC_DEFINE([HWLOC_ENFORCE_SINGLE_NUMA_NODE], [1], [Repin process to ensure it has affinity to cores within a single NUMA node])])
 
 AC_ARG_ENABLE([manual-progress],
-    [AC_HELP_STRING([--enable-manual-progress],
+    [AS_HELP_STRING([--enable-manual-progress],
                     [Enable intermittent progress calls inside transport layer (default:disabled)])])
 AS_IF([test "$enable_completion_polling" = "yes" -o "$enable_manual_progress" = "yes"],
       [AC_DEFINE([DEFAULT_POLL_LIMIT], [-1], [Poll limit for local/remote completions])],
@@ -97,7 +99,7 @@ AS_IF([test "$enable_manual_progress" = "yes"],
       [AC_DEFINE([ENABLE_MANUAL_PROGRESS], [1], [Enable manual progress])])
 
 AC_ARG_ENABLE([total-data-ordering],
-    [AC_HELP_STRING([--enable-total-data-ordering],
+    [AS_HELP_STRING([--enable-total-data-ordering],
        [Configure handling of total data ordering option.  "no" or "never" to build with the assumption total data ordering will never be available.  "yes" or "always" to build with the assumption total data ordering will always be available (if not, applications will abort in start_pes()).  "check" to build with no assumptions, which may lead to a slight performance decrease on high performance networks.  (default: disabled)])])
 AS_CASE([x$enable_total_data_ordering],
   [xyes|xalways], [ordering=1; msg="assume always available"],
@@ -109,7 +111,7 @@ AC_MSG_CHECKING([For total data ordering behavior])
 AC_MSG_RESULT([$msg])
 
 AC_ARG_ENABLE([threads],
-    [AC_HELP_STRING([--disable-threads],
+    [AS_HELP_STRING([--disable-threads],
                     [Disable threading support (default:enabled)])])
 
 AS_IF([test "$enable_threads" != "no"], [
@@ -171,42 +173,42 @@ AS_IF([test "$enable_threads" != "no"], [
 AM_CONDITIONAL([HAVE_OPENMP], [test "$enable_threads" != "no" -a "$enable_openmp" != "no" -a "$ac_cv_prog_c_openmp" != "unsupported"])
 
 AC_ARG_ENABLE([pthread-mutexes],
-    [AC_HELP_STRING([--enable-pthread-mutexes],
+    [AS_HELP_STRING([--enable-pthread-mutexes],
                     [Use pthread mutexes instead of internal queueing locks (default:disabled)])])
 AS_IF([test "$enable_pthread_mutexes" = "yes"], [AC_DEFINE([ENABLE_PTHREAD_MUTEX], [1], [Enable pthread mutexes])])
 
 AC_ARG_ENABLE([thread-completion],
-    [AC_HELP_STRING([--enable-thread-completion],
+    [AS_HELP_STRING([--enable-thread-completion],
         [Support SHMEM_THREAD_MULTIPLE in OFI transport using FI_THREAD_COMPLETION thread safety model instead of FI_THREAD_SAFE (default: disabled)])])
 
 AC_ARG_ENABLE([remote-virtual-addressing],
-    [AC_HELP_STRING([--enable-remote-virtual-addressing],
+    [AS_HELP_STRING([--enable-remote-virtual-addressing],
                     [Enable optimizations assuming the symmetric heap and data segments are located at identical addresses at all PEs.  This may cause erroneous behavior if this assumption is violated, but will reduce the instruction count for some operations.  On Linux systems, this optimization requires disabling ASLR.  This optimization also requires that the Portals 4 implementation support BIND_INACCESSIBLE on LEs. (default: disabled)])])
 AS_IF([test "$enable_remote_virtual_addressing" = "yes"],
       [AC_DEFINE([ENABLE_REMOTE_VIRTUAL_ADDRESSING], [1], [If defined, the implementation will use one LE/PT to cover all of the symmetric data and heap, setup so that no offset transformation is needed on the target virtual address.])])
 
 AC_ARG_ENABLE([aslr-check],
-    [AC_HELP_STRING([--disable-aslr-check],
+    [AS_HELP_STRING([--disable-aslr-check],
                     [Disable check for address space layout randomization (ASLR).  This can be useful when ASLR is enabled, but position-independent executable generation is disabled by compiler or linker flags. (default: enabled)])])
 AS_IF([test "$enable_aslr_check" = "no"],
       [AC_DEFINE(DISABLE_ASLR_CHECK_AC, [1], [Disable ASLR check])])
 
 
 AC_ARG_ENABLE([lengthy-tests],
-    [AC_HELP_STRING([--enable-lengthy-tests],
+    [AS_HELP_STRING([--enable-lengthy-tests],
                     [Execute long running tests as part of "make check" (default: disabled)])])
 AM_CONDITIONAL([ENABLE_LENGTHY_TESTS], [test "$enable_lengthy_tests" = "yes"])
 
 AC_ARG_ENABLE([fortran],
-    [AC_HELP_STRING([--disable-fortran],
+    [AS_HELP_STRING([--disable-fortran],
                     [Disable building the Fortran bindings (default: enabled)])])
 
 AC_ARG_ENABLE([cxx],
-    [AC_HELP_STRING([--disable-cxx],
+    [AS_HELP_STRING([--disable-cxx],
                     [Disable building the C++ bindings (default: enabled)])])
 
 AC_ARG_ENABLE([c11-checks],
-    [AC_HELP_STRING([--disable-c11-checks],
+    [AS_HELP_STRING([--disable-c11-checks],
                     [Disable build-time type checks for C11 bindings (default: enabled)])])
 
 AC_ARG_ENABLE([libtool-wrapper],
@@ -222,7 +224,7 @@ AS_IF([test "$enable_rpath" = "no"], [], [enable_wrapper_rpath="yes"])
 
 
 AC_ARG_ENABLE([profiling],
-    [AC_HELP_STRING([--enable-profiling],
+    [AS_HELP_STRING([--enable-profiling],
                     [Enable profiling (pshmem) interface (default:disabled)])])
 AS_IF([test "$enable_profiling" = "yes"],
       [OPAL_C_WEAK_SYMBOLS()
@@ -232,14 +234,14 @@ AS_IF([test "$enable_profiling" = "yes"],
        ])
 
 AC_ARG_ENABLE([long-fortran-header],
-    [AC_HELP_STRING([--enable-long-fortran-header],
+    [AS_HELP_STRING([--enable-long-fortran-header],
                     [Enable long Fortran header, including all function declarations (default:disabled)])])
 AS_IF([test "$enable_long_fortran_header" = "yes"], [FORTRAN_LONG_HEADER=" "], [FORTRAN_LONG_HEADER="!"])
 AC_SUBST([FORTRAN_LONG_HEADER])
 AM_CONDITIONAL([HAVE_LONG_FORTRAN_HEADER], [test "$enable_long_fortran_header" = "yes"])
 
 AC_ARG_ENABLE([ofi-mr],
-    [AC_HELP_STRING([--enable-ofi-mr=MODE],
+    [AS_HELP_STRING([--enable-ofi-mr=MODE],
                     [OFI memory registration mode: basic, scalable, or rma-event (default: scalable)])])
 
 AS_IF([test -z "$enable_ofi_mr"], [enable_ofi_mr="scalable"])
@@ -255,19 +257,19 @@ AS_CASE([$enable_ofi_mr],
         [AC_MSG_ERROR([Invalid OFI memory registration mode: $enable_ofi_mr])])
 
 AC_ARG_ENABLE([mr-endpoint],
-    [AC_HELP_STRING([--enable-mr-endpoint],
+    [AS_HELP_STRING([--enable-mr-endpoint],
                     [Use FI_MR_ENDPOINT to enable cxi provider. (default: disabled)])])
 AS_IF([test "$enable_mr_endpoint" = "yes"],
       [AC_DEFINE([ENABLE_MR_ENDPOINT], [1], [If defined, the OFI transport will use FI_MR_ENDPOINT])])
 
 AC_ARG_ENABLE([ofi-manual-progress],
-    [AC_HELP_STRING([--enable-ofi-manual-progress],
+    [AS_HELP_STRING([--enable-ofi-manual-progress],
                     [Use FI_MANUAL_PROGRESS for data progress control mode. (default: disabled)])])
 AS_IF([test "$enable_ofi_manual_progress" = "yes"],
       [AC_DEFINE([ENABLE_FI_MANUAL_PROGRESS], [1], [If defined, the OFI will use FI_MANUAL_PROGRESS as data progress mode. This is currently required for cxi provider.])])
 
 AC_ARG_ENABLE([max-teams],
-    [AC_HELP_STRING([--enable-max-teams=NUMBER],
+    [AS_HELP_STRING([--enable-max-teams=NUMBER],
                     [Default value for the maximum number of teams allowed (default: 10)])])
 
 AS_IF([test -z "$enable_max_teams"],
@@ -275,65 +277,65 @@ AS_IF([test -z "$enable_max_teams"],
       [AC_DEFINE_UNQUOTED([DEFAULT_TEAMS_MAX], [$enable_max_teams], [Maximum number of teams (custom)])])
 
 AC_ARG_ENABLE([rpm-prefix],
-    [AC_HELP_STRING([--enable-rpm-prefix],
+    [AS_HELP_STRING([--enable-rpm-prefix],
                     [Generate RPM spec file that supports an alternate installation prefix (default:disabled)])])
 AS_IF([test "$enable_rpm_prefix" = "yes"], [SOS_RPM_PREFIXED=""], [SOS_RPM_PREFIXED="# DISABLED: "])
 AC_SUBST([SOS_RPM_PREFIXED])
 
 AC_ARG_ENABLE([av-map],
-    [AC_HELP_STRING([--enable-av-map],
+    [AS_HELP_STRING([--enable-av-map],
                     [enable av-map instead of av-table in the OFI transport. (default: disabled)])])
 AS_IF([test "$enable_av_map" = "yes"],
       [AC_DEFINE([USE_AV_MAP], [1], [If defined, the OFI transport will use FI_AV_MAP.  Otherwise, FI_AV_TABLE is used.])])
 
 AC_ARG_ENABLE([bounce-buffers],
-    [AC_HELP_STRING([--disable-bounce-buffers],
+    [AS_HELP_STRING([--disable-bounce-buffers],
                     [Disable bounce buffers by default (default: enabled)])])
 AS_IF([test "$enable_bounce_buffers" = "no"],
       [AC_DEFINE([DEFAULT_BOUNCE_SIZE], [0], [Default bounce buffer threshold])],
       [AC_DEFINE([DEFAULT_BOUNCE_SIZE], [2048], [Default bounce buffer threshold])])
 
 AC_ARG_ENABLE([ofi-inject],
-    [AC_HELP_STRING([--disable-ofi-inject],
+    [AS_HELP_STRING([--disable-ofi-inject],
                     [Disable OFI inject by default (default: enabled)])])
 AS_IF([test "$enable_ofi_inject" = "no"],
       [AC_DEFINE([DISABLE_OFI_INJECT], [1], [If defined, the OFI will not use fi_inject.])])
 
 AC_ARG_ENABLE([nonfetch-amo],
-    [AC_HELP_STRING([--disable-nonfetch-amo],
+    [AS_HELP_STRING([--disable-nonfetch-amo],
                     [Disable non-fetching AMO and replace them with fetching AMO (default: enabled)])])
 AS_IF([test "$enable_nonfetch_amo" = "no"],
       [AC_DEFINE([DISABLE_NONFETCH_AMO], [1], [If defined, SOS will fetch values for any AMO.])])
 
 AC_ARG_WITH([oshrun-launcher],
-    [AC_HELP_STRING([--with-oshrun-launcher],
+    [AS_HELP_STRING([--with-oshrun-launcher],
                     [Set launcher to be used by oshrun launcher wrapper. (default: auto)])])
 
 AC_ARG_ENABLE([memcpy],
-    [AC_HELP_STRING([--enable-memcpy],
+    [AS_HELP_STRING([--enable-memcpy],
                     [Use memcpy to perform local put/get operations (default:disabled)])])
 
 AC_ARG_ENABLE([ofi-fence],
-    [AC_HELP_STRING([--enable-ofi-fence],
+    [AS_HELP_STRING([--enable-ofi-fence],
                     [Use FI_FENCE feature to optimize put-with-signal operations. (default: disabled)])])
 AS_IF([test "$enable_ofi_fence" = "yes"],
       [AC_DEFINE([USE_FI_FENCE], [1], [If defined, the OFI transport will use FI_FENCE. Otherwise, transport layer fence is used.])])
 
 AC_ARG_ENABLE([shr-atomics],
-    [AC_HELP_STRING([--enable-shr-atomics],
+    [AS_HELP_STRING([--enable-shr-atomics],
                     [Enable shared memory atomic operations. (default: auto)])])
 AS_IF([test "$enable_shr_atomics" = "yes"],
       [AC_DEFINE([USE_SHR_ATOMICS], [1], [If defined, the shared memory layer will perform processor atomics.])])
 
 AC_ARG_ENABLE([manpages],
-    [AC_HELP_STRING([--enable-manpages],
+    [AS_HELP_STRING([--enable-manpages],
                     [Include man pages in the installation (default:disabled)])])
 AM_CONDITIONAL([ENABLE_MANPAGES], [test "$enable_manpages" = "yes"])
 AS_IF([test "$enable_manpages" = "yes"], [SOS_RPM_MANPAGES=""], [SOS_RPM_MANPAGES="# DISABLED: "])
 AC_SUBST([SOS_RPM_MANPAGES])
 
 AC_ARG_ENABLE([ofi-hmem],
-    [AC_HELP_STRING([--enable-ofi-hmem],
+    [AS_HELP_STRING([--enable-ofi-hmem],
                     [Use FI_HMEM to support transfers to and from device memory. (default: disabled)])])
 AS_IF([test "$enable_ofi_hmem" = "yes"],
       [AC_DEFINE([USE_FI_HMEM], [1], [If defined, the OFI transport will enable FI_HMEM.])])
@@ -383,11 +385,14 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 AS_IF([test "$shmem_cv_c11_works" = "no"],
       [AC_MSG_RESULT([no])
       CFLAGS="$ORIG_CFLAGS"
-      AC_PROG_CC_C99
+      # AC_PROG_CC_C99 is obsolete after autoconf 2.70, because
+      # AC_PROG_CC should revert to C99 automatically if needed
+      m4_version_prereq([2.70], [AC_PROG_CC], [AC_PROG_CC_C99])
       ],
       [AC_MSG_RESULT([yes])
       CFLAGS="-std=gnu11 $ORIG_CFLAGS"]
       )
+
 AC_LANG_POP([C])
 AM_CONDITIONAL([HAVE_C11], [test "$shmem_cv_c11_works" = "yes" -a "$enable_c11_checks" != "no"])
 # end gnu11/gnu99 check
@@ -436,7 +441,9 @@ OPAL_CHECK_PORTALS4([portals4],
     [transport_portals4="yes"],
     [transport_portals4="no"])
 
-OPAL_CHECK_OFI
+OPAL_CHECK_OFI([ofi],
+    [transport_ofi="yes"],
+    [transport_ofi="no"])
 
 AS_IF([test "$opal_ofi_happy" = "yes"],
     [transport_ofi="yes"],
@@ -544,9 +551,9 @@ if test "$enable_shr_atomics" != "no" -a "$transport_xpmem" = "yes" -a "$transpo
     AC_DEFINE([USE_SHR_ATOMICS], [1], [If defined, the shared memory layer will perform processor atomics.])
 fi
 
-AC_ARG_ENABLE([pmi-simple], [AC_HELP_STRING([--enable-pmi-simple],
+AC_ARG_ENABLE([pmi-simple], [AS_HELP_STRING([--enable-pmi-simple],
               [Use MPICH simple PMI-1 library for process management])])
-AC_ARG_ENABLE([pmi-mpi], [AC_HELP_STRING([--enable-pmi-mpi],
+AC_ARG_ENABLE([pmi-mpi], [AS_HELP_STRING([--enable-pmi-mpi],
               [Use MPI for process management])])
 
 AS_IF([test "$enable_pmi_simple" = "yes" -o "$enable_pmi_mpi" = "yes"],
@@ -616,9 +623,9 @@ AS_IF([test "$enable_pmi_simple" = "yes"],
 dnl check for types
 
 AC_LANG_PUSH([C])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[ ]], [[ _Complex v; ]] )],
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[ ]], [[ float _Complex v; ]] )],
                   [],
-                  [AC_ERROR([C Compiler does not support _Complex])])
+                  [AC_MSG_ERROR(C Compiler does not support _Complex)])
 AC_LANG_POP([C])
 
 SHMEM_FIND_INT_TYPE([char], [$transport])
@@ -687,18 +694,16 @@ AC_MSG_CHECKING([size of SHMEM_REDUCE_MIN_WRKDATA_SIZE])
 AC_MSG_RESULT([$C_REDUCE_MIN_WRKDATA_SIZE])
 
 AC_MSG_CHECKING([if long can hold lock_t])
-AC_TRY_RUN([struct lock_s { int a; int b; }; int main(void) { if (sizeof(long) == sizeof(struct lock_s)) return 0; else return 1; }],
-               [AC_MSG_RESULT([yes])], [
+AC_RUN_IFELSE([AC_LANG_SOURCE([[struct lock_s { int a; int b; }; int main(void) { if (sizeof(long) == sizeof(struct lock_s)) return 0; else return 1; }]])],[AC_MSG_RESULT([yes])],[
                 AC_MSG_RESULT([no])
-                AC_MSG_ERROR([Lock API requires long can hold 'struct { int a; int b; }']) ])
+                AC_MSG_ERROR([Lock API requires long can hold 'struct { int a; int b; }']) ],[])
 
 if test "$FC" != "" ; then
   AC_DEFINE([ENABLE_FORTRAN],[1],[Fortran support enabled])
   AC_MSG_CHECKING([if complex sizes are appropriate])
-  AC_TRY_RUN([float _Complex x; double _Complex y; int main(void) { if (sizeof(x)==8 && sizeof(y)==16) return 0; else return 1; }],
-                 [AC_MSG_RESULT([yes])], [
+  AC_RUN_IFELSE([AC_LANG_SOURCE([[float _Complex x; double _Complex y; int main(void) { if (sizeof(x)==8 && sizeof(y)==16) return 0; else return 1; }]])],[AC_MSG_RESULT([yes])],[
                   AC_MSG_RESULT([no])
-                  AC_MSG_ERROR([float _Complex and double _Complex must be 4 and 8 bytes, respectively]) ])
+                  AC_MSG_ERROR([float _Complex and double _Complex must be 4 and 8 bytes, respectively]) ],[])
   # make sure Fortran supports ISO_C_BINDING (Fortran 2003)
   AC_CACHE_CHECK([if Fortran compiler supports ISO_C_BINDING],
     [shmem_cv_fortran_iso_c_binding],
@@ -824,7 +829,7 @@ AC_SUBST(aslr_LDFLAGS)
 dnl check for library functions
 
 AC_MSG_CHECKING([for data segment pointer])
-AC_TRY_RUN([
+AC_RUN_IFELSE([AC_LANG_SOURCE([[
 #ifdef __APPLE__
 #include <mach-o/getsect.h>
 #else
@@ -854,11 +859,9 @@ int main(void) {
 #endif
     if (!(base != (void*)0 && length > 0)) return 2;
     return 0;
-}],
-    AC_MSG_RESULT([found]),
-    [ AC_MSG_RESULT([not found])
+}]])],[AC_MSG_RESULT(found)],[ AC_MSG_RESULT([not found])
       AC_MSG_ERROR([Could not locate data segment])
-    ])
+    ],[])
 
 dnl final output
 
@@ -912,11 +915,11 @@ if test "$transport_portals4" = "yes" ; then
 fi
 
 if test "$transport_ofi" = "yes" ; then
-    CPPFLAGS="$CPPFLAGS $opal_ofi_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $opal_ofi_LDFLAGS"
-    LIBS="$LIBS $opal_ofi_LIBS"
-    WRAPPER_COMPILER_EXTRA_LDFLAGS="$opal_ofi_LDFLAGS"
-    WRAPPER_COMPILER_EXTRA_LIBS="$opal_ofi_LIBS"
+    CPPFLAGS="$CPPFLAGS $ofi_CPPFLAGS"
+    LDFLAGS="$LDFLAGS $ofi_LDFLAGS"
+    LIBS="$LIBS $ofi_LIBS"
+    WRAPPER_COMPILER_EXTRA_LDFLAGS="$ofi_LDFLAGS"
+    WRAPPER_COMPILER_EXTRA_LIBS="$ofi_LIBS"
 fi
 
 if test "$transport_ucx" = "yes" ; then

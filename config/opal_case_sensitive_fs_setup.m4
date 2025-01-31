@@ -10,6 +10,7 @@ dnl Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
 dnl                         University of Stuttgart.  All rights reserved.
 dnl Copyright (c) 2004-2005 The Regents of the University of California.
 dnl                         All rights reserved.
+dnl Copyright (c) 2022      Cisco Systems, Inc.  All rights reserved.
 dnl $COPYRIGHT$
 dnl
 dnl Additional copyrights may follow
@@ -59,9 +60,11 @@ rm -f conf_fs_test.$$ CONF_FS_TEST.$$
 # Now see what the user wants to do...
 #
 AC_MSG_CHECKING([if configuring for case sensitive filesystem])
-AC_ARG_WITH(cs_fs,
-            AC_HELP_STRING([--with-cs-fs],
-                           [Destination FS is case sensitive (default: set to value of the build FS's case sensitivity)]))
+AC_ARG_WITH([cs_fs],
+            [AS_HELP_STRING([--with-cs-fs],
+                           [Destination FS is case sensitive (default: set to value of the build FS's case sensitivity)])])
+
+dnl Stupid emacs syntax highlighting: '
 
 if test "$with_cs_fs" = "yes"; then
     OPAL_WANT_CS_FS=1
@@ -78,26 +81,12 @@ else
 fi
 
 AM_CONDITIONAL(CASE_SENSITIVE_FS, test "$OPAL_WANT_CS_FS" = "1")
-
-if test "$OPAL_WANT_CS_FS" = "0"; then
-	cat <<EOF
-
-*******************************************************************************
-NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE
-*******************************************************************************
-
-Because OPAL is being installed on a non-case sensitive file
-system, the C++ wrapper compiler will be named opalc++ instead of the
-traditional opalCC.
-
-Please update any makefiles appropriately.
-
-*******************************************************************************
-NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE
-*******************************************************************************
-
-EOF
-fi
+# There is a case in the ompi/tools/wrappers/Makefile.am where we need
+# to know if there is a case sensitive filesystem *and* if we have a
+# C++ compiler.  Since we can't use operators like "&&" or "and" to
+# join together AM CONDITIONALs in a Makefile.am, effectively make a
+# combo CONDITIONAL here.
+AM_CONDITIONAL([CASE_SENSITIVE_FS_AND_HAVE_CXX_COMPILER], [test "$OPAL_WANT_CS_FS" = "1" && test "$CXX" != "no"])
 
 # Clean up
 unset have_cs_fs])dnl
